@@ -34,10 +34,30 @@ void print_permissions(mode_t mode) {
     printf((mode & S_IXOTH) ? "x" : "-");
 }
 
+int first_line_flag = 0;
 static int              /* Callback function called by ftw() */
 dirTree(const char *pathname, const struct stat *sbuf, int type, struct FTW *ftwb)
 {
-    printf(" %*s", 4 * ftwb->level, " ");         /* Indent suitably */
+    if (first_line_flag == 0)
+    {
+        first_line_flag = 1;
+        // printf("└──");         /* Indent suitably */
+    }
+    else{
+        printf("\t");
+        // printf("%*s", 4 * ftwb->level, " ");         /* Indent suitably */
+        // printf("├─");
+        for (int i = 0; i < 4 * ftwb->level; i++) {
+            if (i % 4 == 0)
+            {
+                printf("│");
+            }
+            else{
+                printf(" ");
+            }
+        }
+    }
+    
     if (type == FTW_NS) {                  /* Could not stat() file */
         printf("?");
     } else {
@@ -75,6 +95,7 @@ main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s directory-path\n", argv[0]);
         exit(EXIT_FAILURE);
     }
+    printf("└──");
 
     if (nftw(argv[1], dirTree, 10, flags) == -1) {
         perror("nftw");
